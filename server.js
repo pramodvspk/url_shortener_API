@@ -4,54 +4,46 @@ var PORT = process.env.PORT || 3000;
 var request  = require('request');
 var db = require('./db.js');
 
-// Using a regular expression to match the '/' in the URL
-app.get('/shorten/:url(*)', function (req, res) {
-	var returnJSON = {};
-	var url= req.params.url;
-	var expression= /https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,}/;
- 	var regex= new RegExp(expression);
- 	if(url.match(regex)){
- 		request('https://api-ssl.bitly.com/v3/shorten?access_token=52458fac3b6cd42d41ab9fe6a4df043740d2ccd7&longUrl='+url, function (error, response, body) {
- 			if(!error && response.statusCode==200){
- 				var bodyJSON= JSON.parse(body);
-				returnJSON.original_url= url;
- 				returnJSON.short_url= bodyJSON.data.url;
- 				res.json(returnJSON);
- 			}else{
- 				returnJSON.error= "There was a problem with the URL you sent";
- 				res.json(returnJSON);
- 			}
- 		});
- 	}else{
- 		returnJSON.error= "Please send a valid and real URL";
- 		res.json(returnJSON);
- 	}
-});
-
-
+// The method which redirects to the original url or throws an error informing that there doesnt exist an url
 app.get('/:id', function (req, res) {
+	/******
+	Check if an entry exists with the particular id, else return error
+	Checking if the entry exists then send it else send an error
+	dbName: Shorturl
+	******/
 	var id= parseInt(req.params.id,10);
-
-	// Check if an entry exists with the particular id, else return error
-	// Checking if the entry exists
+	db.Shorturl.findById(id).then(function (shortenedUrl) {
+		if(shortenedUrl) {
+			res.redirect(shortenedUrl.originalurl);
+		} else {
+			responseJSON= {};
+			responseJSON.error= "This url is not present";
+ 			res.status(400).send(responseJSON);
+		}
+	}).catch(function (e) {
+		responseJSON= {};
+		responseJSON.error= "An error occured";
+ 		res.status(400).send(responseJSON);
+	})
 });
 
-
+// Post method which shortens the URL and returns back to the user
 app.post('/shorten/:url(*)', function (req, res) {
 	var url = req.params.url;
 	var expression= /https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,}/;
 	var regex= new RegExp(expression);
 	if(url.match(regex)) {
-		// check if the url already exists, if not create the item 
-
-
-		// Checking if the URL exists
+		/******
+		Check if an url already exists in the database
+		If it exists, return the original url and the shortened url
+		Else create a row for the original url and then return the original url and the shortened url
+		dbName: Shorturl
+		******/
 		db.Shorturl.findOne({
 			where:{
-				longurl: url
+				originalurl: url
 			}
 		}).then(function (shortenedUrl){
-			// If it exists, then return back the item
 			if(shortenedUrl) {
 				var responseJSON = {
 					original_url: url,
@@ -59,9 +51,8 @@ app.post('/shorten/:url(*)', function (req, res) {
 				}
 				res.json(responseJSON);
 			} else {
-				// Else create the item and return it
 				db.Shorturl.create({
-						longurl: url
+						originalurl: url
 					}).then(function (shortenedUrl) {
 						var responseJSON = {
 							original_url: url,
@@ -87,11 +78,12 @@ app.post('/shorten/:url(*)', function (req, res) {
 
 });
 
-
+// The homepage
 app.get('/', function (req, res){
 	res.send("Welcome to url shortener");
 });
 
+// Synchronize the models with the database
 db.sequelize.sync().then(function () {
 	app.listen(PORT, function () {
 		console.log("The server has started on PORT "+PORT);

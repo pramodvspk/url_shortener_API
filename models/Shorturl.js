@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
 	return sequelize.define('Shorturl', {
-		longurl: {
+		originalurl: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			validate: {
