@@ -27,8 +27,8 @@ app.get('/:id', function (req, res) {
 	})
 });
 
-// Post method which shortens the URL and returns back to the user
-app.post('/shorten/:url(*)', function (req, res) {
+// Get method which shortens the URL and returns back to the user
+app.get('/shorten/:url(*)', function (req, res) {
 	var url = req.params.url;
 	var expression= /https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,}/;
 	var regex= new RegExp(expression);
@@ -80,11 +80,11 @@ app.post('/shorten/:url(*)', function (req, res) {
 
 // The homepage
 app.get('/', function (req, res){
-	res.send("Welcome to url shortener");
+	res.sendFile(__dirname+'/welcome.html');
 });
 
 // Synchronize the models with the database
-db.sequelize.sync({force:true}).then(function () {
+db.sequelize.sync().then(function () {
 	app.listen(PORT, function () {
 		console.log("The server has started on PORT "+PORT);
 	});

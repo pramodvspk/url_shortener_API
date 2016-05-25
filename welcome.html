@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome to URL shortener API</title>
+	<style type="text/css">
+		.code{
+		  color: maroon;
+		}
+		body{
+		  font-family: Arial, Helvetica, sans-serif;
+		}
+	</style>
+</head>
+<body>
+		<h1>URL Shortener API</h1>
+		<p>User Stories</p>
+		<ol>
+		  <li>The User can pass a URL as a parameter and will receive a shortened url in a JSON format.
+		  </li>
+		  <li>When the users visit the shortened url they are redirected to the original url </li>
+		</ol>
+		<h2>Example creation usage</h2>
+		<p class="code">https://pramodvspk-url-shortener.herokuapp.com/shorten/https://google.com</p>
+		<p class="code">https://pramodvspk-url-shortener.herokuapp.com/shorten/https//facebook.com</p>
+		<h2>Example creation output</h2>
+		<p class="code">{"original_url": "https://google.com", "short_url: "https://pramodvspk-url-shortener.herokuapp.com/1"}</p>
+		<h2>Usage</h2>
+		<p class="code">https://pramodvspk-url-shortener.herokuapp.com/1</p>
+		<h2>Will redirect to</h2>
+		<p class="code">https://google.com</p>
+</body>
+</html>
+
+
